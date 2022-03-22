@@ -22,6 +22,7 @@ while True:
         print (sock.recv(1024).decode())
         sock.close()
     elif command=='download all':
+        output="Downloaded"
         sock.sendall("downloadall".encode())
         fileName=sock.recv(1024).decode()
         if fileName == 'DONE':
@@ -36,6 +37,7 @@ while True:
 
             print(fileName)
             fileToDownload=open(fileName,"wb")
+            output=output +" "+ fileName
 
 
             
@@ -55,8 +57,12 @@ while True:
             sock.sendall("OK".encode())
         
         sock.close()
+        print(output)
+
+
     elif firstWord == 'download' and secondWord != 'all':
         sock.sendall("downloadFile".encode())
+        output="Downloaded"
 
         isOk= sock.recv(1024)
         if isOk != b'OK':
@@ -75,6 +81,7 @@ while True:
         print(fileSize)
         sock.sendall("OK".encode())
         fileToDownload=open(secondWord,"wb")
+        output=output+" "+secondWord
 
         udpSock.sendto("OK".encode(), ('127.0.0.1', 32602))
         while fileSize>0:
@@ -86,6 +93,7 @@ while True:
         
         fileToDownload.close()
         udpSock.close()
+        print(output)
             
 
 
