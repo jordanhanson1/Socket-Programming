@@ -85,9 +85,21 @@ while True:
 
         udpSock.sendto("OK".encode(), ('127.0.0.1', 32602))
         while fileSize>0:
+
+            #get chunk of data from server
             chunk= 1024 if fileSize>1024 else fileSize
             data=udpSock.recvfrom(chunk)[0]
-            print(data)
+
+            ## send back to check if good
+            udpSock.sendto(data, ('127.0.0.1', 32602))
+            dataGood=udpSock.recvfrom(len('1'))[0]
+            while dataGood != b'1':
+                data=udpSock.recvfrom(chunk)[0]
+                udpSock.sendto(data, ('127.0.0.1', 32602))
+                dataGood=udpSock.recvfrom(len('0'))[0]
+            
+
+            #write to file
             fileSize=fileSize-chunk
             fileToDownload.write(data)
         

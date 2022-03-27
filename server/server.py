@@ -58,6 +58,12 @@ while True:
     while bits:
       udpSock.sendto(bits, msg[1])
       bits=toSend.read(1024)
+      data=udpSock.recvfrom(len(bits))[0]
+      while(data != bits):
+        udpSock.sendto('0'.encode(), msg[1])
+        udpSock.sendto(bits, msg[1])
+        data=udpSock.recvfrom(len(bits))[0]
+      udpSock.sendto('1'.encode(), msg[1])
     
     toSend.close()
     udpSock.close()
