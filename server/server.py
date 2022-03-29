@@ -22,7 +22,7 @@ while True:
   command = client.recv(1024).decode()
   if not command:
     break
-  print(command)
+  
 
   if command=='listallfiles':
     files=os.listdir('./')
@@ -37,36 +37,38 @@ while True:
     client.sendall('OK'.encode())
     fileName=client.recv(1024).decode()
     
-    client.sendall("OK".encode())
-    isOk=client.recv(1024)
-    if isOk != b'OK':
-      print("something wrong")
 
-    toSend=open(fileName, "rb")
-    fileSize=str(os.path.getsize(fileName))+' '
-    client.sendall(fileSize.encode())
-    isOk=client.recv(1024)
-    if isOk != b'OK':
-      print("something wrong")
+    if not os.path.exists(fileName):
+      client.sendall("no file".encode())
+      
+    else: 
+      client.sendall("OK".encode())
+      isOk=client.recv(1024)
+      if isOk != b'OK':
+        print("something wrong")
+      
 
-    msg=udpSock.recvfrom(1024)
-    isOk=msg[0]
-    if isOk != b'OK':
-      print("something wrong")
+      toSend=open(fileName, "rb")
+      fileSize=str(os.path.getsize(fileName))+' '
+      client.sendall(fileSize.encode())
+      isOk=client.recv(1024)
+      if isOk != b'OK':
+        print("something wrong")
 
-    bits=toSend.read(1024)
-    while bits:
-      udpSock.sendto(bits, msg[1])
+      msg=udpSock.recvfrom(1024)
+      isOk=msg[0]
+      if isOk != b'OK':
+        print(isOk)
+        print("here something wrong")
+
       bits=toSend.read(1024)
-      data=udpSock.recvfrom(len(bits))[0]
-      while(data != bits):
-        udpSock.sendto('0'.encode(), msg[1])
+      while bits:
         udpSock.sendto(bits, msg[1])
-        data=udpSock.recvfrom(len(bits))[0]
-      udpSock.sendto('1'.encode(), msg[1])
-    
-    toSend.close()
-    udpSock.close()
+        bits=toSend.read(1024)
+        
+      
+      toSend.close()
+     
 
     
     
@@ -107,7 +109,9 @@ while True:
 
   if command == 'exit':
     client.close()
+    udpSock.close()
     break
+
   
   
 

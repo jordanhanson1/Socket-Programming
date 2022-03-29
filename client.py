@@ -29,13 +29,12 @@ while True:
             break
         sock.sendall("OK".encode())
         fileSize=int(sock.recv(1024).decode())
-        print(fileSize)
         sock.sendall("OK".encode())
         
         while fileName != "DONE":
             
 
-            print(fileName)
+            
             fileToDownload=open(fileName,"wb")
             output=output +" "+ fileName
 
@@ -53,7 +52,7 @@ while True:
                 break
             sock.sendall("OK".encode())
             fileSize=int(sock.recv(1024).decode())
-            print(fileSize)
+            
             sock.sendall("OK".encode())
         
         sock.close()
@@ -67,45 +66,45 @@ while True:
         isOk= sock.recv(1024)
         if isOk != b'OK':
             print("something wrong")
+
         
         sock.sendall(secondWord.encode())
 
 
         isOk= sock.recv(1024)
+        
         if isOk != b'OK':
             print("something wrong")
-
-        sock.sendall("OK".encode())
-        
-        fileSize=int(sock.recv(1024).decode())
-        print(fileSize)
-        sock.sendall("OK".encode())
-        fileToDownload=open(secondWord,"wb")
-        output=output+" "+secondWord
-
-        udpSock.sendto("OK".encode(), ('127.0.0.1', 32602))
-        while fileSize>0:
-
-            #get chunk of data from server
-            chunk= 1024 if fileSize>1024 else fileSize
-            data=udpSock.recvfrom(chunk)[0]
-
-            ## send back to check if good
-            udpSock.sendto(data, ('127.0.0.1', 32602))
-            dataGood=udpSock.recvfrom(len('1'))[0]
-            while dataGood != b'1':
-                data=udpSock.recvfrom(chunk)[0]
-                udpSock.sendto(data, ('127.0.0.1', 32602))
-                dataGood=udpSock.recvfrom(len('0'))[0]
+            print(isOk)
+            udpSock.close()
+        else:
+            sock.sendall("OK".encode())
             
+            fileSize=int(sock.recv(1024).decode())
+            
+            sock.sendall("OK".encode())
+            fileToDownload=open(secondWord,"wb")
+            output=output+" "+secondWord
 
-            #write to file
-            fileSize=fileSize-chunk
-            fileToDownload.write(data)
-        
-        fileToDownload.close()
-        udpSock.close()
-        print(output)
+            udpSock.sendto("OK".encode(), ('127.0.0.1', 32602))
+            while fileSize>0:
+
+                #get chunk of data from server
+                chunk= 1024 if fileSize>1024 else fileSize
+                data=udpSock.recvfrom(chunk)[0]
+                
+
+                ## send back to check if good
+               
+                
+
+                #write to file
+                fileSize=fileSize-chunk
+                fileToDownload.write(data)
+            
+            fileToDownload.close()
+            udpSock.close()
+            print(output)
             
 
 
@@ -117,4 +116,6 @@ while True:
         sock.close()
         break
     else:
+        sock.sendall("No Match".encode())
+        sock.close();
         print("Command doesnt match anything")
