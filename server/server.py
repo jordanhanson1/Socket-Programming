@@ -1,9 +1,14 @@
 import socket   
-import os         
- 
+import os   
+
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)        
 udpSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+udpSock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 1000000)
+udpSock.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, 1000000)
+sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+udpSock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+udpSock.settimeout(10)
 
 udpPort= 32602
 
@@ -61,10 +66,11 @@ while True:
         print(isOk)
         print("here something wrong")
 
-      bits=toSend.read(1024)
+      bits=toSend.read(512)
       while bits:
+        
         udpSock.sendto(bits, msg[1])
-        bits=toSend.read(1024)
+        bits=toSend.read(512)
         
       
       toSend.close()
@@ -110,12 +116,12 @@ while True:
   if command == 'exit':
     client.close()
     udpSock.close()
+    sock.close()
     break
 
   
   
 
 
-sock.close()
-udpSock.close()
+
    

@@ -1,5 +1,4 @@
-import socket            
- 
+import socket    
 
 
 while True:
@@ -11,7 +10,11 @@ while True:
         secondWord=command.partition(' ')[2]
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  
     udpSock=socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
+    udpSock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 1000000)
+    udpSock.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, 1000000)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    udpSock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    udpSock.settimeout(10)
  
     port = 32601             
  
@@ -19,7 +22,7 @@ while True:
     
     if command=='listallfiles': 
         sock.send("listallfiles".encode())
-        print (sock.recv(1024).decode())
+        print (sock.recv(4024).decode())
         sock.close()
     elif command=='download all':
         output="Downloaded"
@@ -88,14 +91,14 @@ while True:
 
             udpSock.sendto("OK".encode(), ('127.0.0.1', 32602))
             while fileSize>0:
+                
+                
 
                 #get chunk of data from server
-                chunk= 1024 if fileSize>1024 else fileSize
+                chunk= 512 if fileSize>512 else fileSize
                 data=udpSock.recvfrom(chunk)[0]
                 
 
-                ## send back to check if good
-               
                 
 
                 #write to file
@@ -114,6 +117,7 @@ while True:
         print("Exiting")
         sock.sendall("exit".encode())
         sock.close()
+        udpSock.close()
         break
     else:
         sock.sendall("No Match".encode())
